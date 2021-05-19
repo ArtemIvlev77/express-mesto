@@ -1,19 +1,18 @@
 const { Card } = require('../models/card');
 
-exports.getCards = (req, res, next) => Card.find({})
+exports.getCards = (res, next) => Card.find({})
   .then((cards) => res.status(200).send(cards))
   .catch(next);
 
-exports.createCard = (req, res, next) => {
+exports.createCard = (req, res) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(400).send({ message: err.message }))
-    .catch(next);
+    .catch((err) => res.status(400).send({ message: err.message }));
 };
 
-exports.deleteCard = (req, res, next) => {
+exports.deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(new Error('Not Found'))
     .then((deleteCard) => res.send({ deleteCard }))
@@ -25,11 +24,10 @@ exports.deleteCard = (req, res, next) => {
       } else {
         res.status(500).send({ message: `Ошибка на сервере: ${err}` });
       }
-    })
-    .catch(next);
+    });
 };
 
-exports.likeCard = (req, res, next) => {
+exports.likeCard = (req, res) => {
   const owner = req.user._id;
   Card.findByIdAndUpdate(
     req.params.cardId,
@@ -43,11 +41,10 @@ exports.likeCard = (req, res, next) => {
           message: 'Переданы некорректные данные для постановки/снятии лайка.',
         });
       }
-    })
-    .catch(next);
+    });
 };
 
-exports.dislikeCard = (req, res, next) => {
+exports.dislikeCard = (req, res) => {
   const owner = req.user._id;
   Card.findByIdAndUpdate(
     req.params.cardId,
@@ -61,6 +58,5 @@ exports.dislikeCard = (req, res, next) => {
           message: 'Переданы некорректные данные для постановки/снятии лайка.',
         });
       }
-    })
-    .catch(next);
+    });
 };

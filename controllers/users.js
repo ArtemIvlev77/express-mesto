@@ -1,16 +1,14 @@
 const { User } = require('../models/user');
 
-exports.getUsers = (req, res, next) => {
+exports.getUsers = (res) => {
   User.find({})
-    .then((users) => res.status(200).send(users))
-    .catch(next);
+    .then((users) => res.status(200).send(users));
 };
 
-exports.getUserById = (req, res, next) => {
+exports.getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err.message }))
-    .catch(next);
+    .catch((err) => res.status(500).send({ message: err.message }));
 };
 
 exports.createUser = async (req, res) => {
@@ -18,7 +16,7 @@ exports.createUser = async (req, res) => {
   res.send(await user.save());
 };
 
-exports.updateProfile = (req, res, next) => {
+exports.updateProfile = (req, res) => {
   const { name, about } = req.body;
   const owner = req.user._id;
   return User.findByIdAndUpdate(owner, { name, about }, { new: true })
@@ -35,11 +33,10 @@ exports.updateProfile = (req, res, next) => {
       } else {
         res.status(500).send({ message: `Ошибка на сервере: ${err}` });
       }
-    })
-    .catch(next);
+    });
 };
 
-exports.updateAvatar = (req, res, next) => {
+exports.updateAvatar = (req, res) => {
   const { avatar } = req.body;
   const owner = req.user._id;
   return User.findByIdAndUpdate(owner, { avatar }, { new: true })
@@ -56,6 +53,5 @@ exports.updateAvatar = (req, res, next) => {
       } else {
         res.status(500).send({ message: `Ошибка на сервере: ${err}` });
       }
-    })
-    .catch(next);
+    });
 };
