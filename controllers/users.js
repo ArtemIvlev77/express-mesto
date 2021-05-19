@@ -1,8 +1,7 @@
 const { User } = require('../models/user');
 
 exports.getUsers = (res) => {
-  User.find({})
-    .then((users) => res.status(200).send(users));
+  User.find({}).then((users) => res.status(200).send(users));
 };
 
 exports.getUserById = (req, res) => {

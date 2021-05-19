@@ -1,8 +1,7 @@
 const { Card } = require('../models/card');
 
-exports.getCards = (res, next) => Card.find({})
-  .then((cards) => res.status(200).send(cards))
-  .catch(next);
+exports.getCards = (res) => Card.find({})
+  .then((cards) => res.status(200).send(cards));
 
 exports.createCard = (req, res) => {
   const { name, link } = req.body;
