@@ -1,17 +1,19 @@
 const { Card } = require('../models/card');
 
-exports.getCards = (res) => Card.find({})
-  .then((cards) => res.status(200).send(cards));
+exports.getCards = (req, res, next) => Card.find({})
+  .then((cards) => res.status(200).send(cards))
+  .catch(next);
 
-exports.createCard = (req, res) => {
+exports.createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(400).send({ message: err.message }));
+    .catch((err) => res.status(400).send({ message: err.message }))
+    .catch(next);
 };
 
-exports.deleteCard = (req, res) => {
+exports.deleteCard = (req, res, next) => {
   Card.findByIdAndRemove(req.params.cardId)
     .orFail(new Error('Not Found'))
     .then((deleteCard) => res.send({ deleteCard }))
@@ -23,7 +25,8 @@ exports.deleteCard = (req, res) => {
       } else {
         res.status(500).send({ message: `Ошибка на сервере: ${err}` });
       }
-    });
+    })
+    .catch(next);
 };
 
 exports.likeCard = (req, res) => {
