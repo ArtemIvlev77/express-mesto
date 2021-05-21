@@ -9,23 +9,27 @@ exports.getUsers = (req, res, next) => {
 exports.getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((user) => res.send({ data: user }))
-    .catch((err) => res.status(500).send({ message: err.message }))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        res
+          .status(404)
+          .send({ message: 'Пользователь по указанному _id не найден' });
+      } else {
+        res.status(500).send({ message: `Ошибка на сервере: ${err}` });
+      }
+    })
     .catch(next);
 };
 
 exports.createUser = (req, res, next) => {
   const { name, about, avatar } = req.body;
   return User.create({ name, about, avatar })
-    .then((user) => res.status(200).send(user))
+    .then((user) => res.send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
         res.status(400).send({
           message: 'Переданы некорректные данные при создании профиля',
         });
-      } else if (err.message === 'NotFound') {
-        res
-          .status(404)
-          .send({ message: 'Пользователь с указанным _id не найден.' });
       } else {
         res.status(500).send({ message: `Ошибка на сервере: ${err}` });
       }
