@@ -17,7 +17,7 @@ usersRoute.get(
   '/:userId',
   celebrate({
     params: Joi.object().keys({
-      userId: Joi.string().length(24).required.hex(),
+      userId: Joi.string().length(24).required().hex(),
     }),
   }),
   getUserById,
@@ -27,8 +27,8 @@ usersRoute.patch(
   '/me',
   celebrate({
     body: Joi.object().keys({
-      name: Joi.string().min2.max30.required(),
-      about: Joi.string().min2.max30.required(),
+      name: Joi.string().min(2).max(30).required(),
+      about: Joi.string().min(2).max(30).required(),
     }),
   }),
   updateProfile,
@@ -36,8 +36,8 @@ usersRoute.patch(
 usersRoute.patch(
   '/me/avatar',
   celebrate({
-    body: Joi.object.keys({
-      avatar: Joi.string().required.regex(
+    body: Joi.object().keys({
+      avatar: Joi.string().required().regex(
         /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]+\.[a-zA-Z0-9()]+([-a-zA-Z0-9()@:%_\\+.~#?&/=#]*)/,
       ),
     }),

@@ -25,11 +25,11 @@ cardsRoute.delete('/:cardId', celebrate({
 }), deleteCard);
 cardsRoute.put('/:cardId/likes', celebrate({
   params: Joi.object().keys({
-    cardId: Joi.strin().length(24).required().hex(),
+    cardId: Joi.string().length(24).required().hex(),
   }),
 }), likeCard);
 cardsRoute.delete('/:cardId/likes', celebrate({
-  params: Joi.obects().keys({
+  params: Joi.object().keys({
     cardId: Joi.string().length(24).required().hex(),
   }),
 }), dislikeCard);
