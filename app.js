@@ -54,6 +54,14 @@ app.use(auth);
 app.use('/users', usersRoute);
 app.use('/cards', cardsRoute);
 
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode).send({
+    message: statusCode === 500 ? 'На сервере произошла ошибка' : message,
+  });
+  next();
+});
+
 app.listen(PORT, () => {
   // eslint-disable-next-line no-console
   console.log(`App listening on ${PORT}`);
