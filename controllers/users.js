@@ -1,4 +1,4 @@
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User } = require('../models/user');
 const NotFoundError = require('../errors/not-found-err');
@@ -7,17 +7,19 @@ const ForbiddenError = require('../errors/forbidden-err');
 const ConflictError = require('../errors/conflict-err');
 const UnauthorizedError = require('../errors/unauthorised-err');
 
+const { NODE_ENV, JWT_SECRET } = process.env;
+
 exports.login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password).then((user) => {
-    const token = jwt.sign(
-      {
-        _id: user._id,
-      },
-      'super_secret_key', { expiresIn: '7d' },
-    );
-    return res.send({ jwt: token });
-  })
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign(
+        { _id: user._id },
+        NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
+        { expiresIn: '7d' },
+      );
+      return res.send({ jwt: token });
+    })
     .catch(() => {
       throw new UnauthorizedError('Не удалось авторизироваться');
     })
@@ -51,9 +53,7 @@ exports.getMe = (req, res, next) => {
   return User.findById(req.user._id)
     .then((user) => {
       if (!user) {
-        next(
-          next(new NotFoundError('Пользователя с таким id не найден')),
-        );
+        next(next(new NotFoundError('Пользователя с таким id не найден')));
       }
       return res.send({ data: user });
     })
@@ -89,25 +89,27 @@ exports.createUser = (req, res, next) => {
       avatar,
       email,
       password: hash,
+    }))
+    .then((user) => res.status(200).send({ mail: user.email }))
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        throw new BadRequestError('Данные не прошли валидацию');
+      }
+      if (err.name === 'MongoError' || err.code === '11000') {
+        throw new ConflictError('Такой емейл уже зарегистрирован');
+      }
     })
-      .then((user) => res.send({ mail: user.email }))
-      .catch((err) => {
-        if (err.name === 'CastError' || err.name === 'ValidationError') {
-          throw new BadRequestError(
-            'Переданы некорректные данные при создании профиля',
-          );
-        }
-        if (err.name === 'MongoError' || err.code === '11000') {
-          throw new ConflictError('Пользователь с таким e-mail уже зарегистрирован');
-        }
-      }))
     .catch(next);
 };
 
 exports.updateProfile = (req, res, next) => {
   const { name, about } = req.body;
   const owner = req.user._id;
-  return User.findByIdAndUpdate(owner, { name, about }, { new: true, runValidators: true })
+  return User.findByIdAndUpdate(
+    owner,
+    { name, about },
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (!user) {
         next(new NotFoundError('Нет пользователя с таким id'));

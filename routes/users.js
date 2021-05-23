@@ -31,6 +31,7 @@ usersRoute.patch(
   }),
   updateProfile,
 );
+
 usersRoute.patch(
   '/me/avatar',
   celebrate({
