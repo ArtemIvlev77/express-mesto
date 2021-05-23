@@ -14,8 +14,8 @@ const cardsRoute = express.Router();
 cardsRoute.get('/', getCards);
 cardsRoute.post('/', celebrate({
   body: Joi.object().keys({
-    name: Joi.string().required().min(2).max(10),
-    link: Joi.string().required().min(2).regex(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]+\.[a-zA-Z0-9()]+([-a-zA-Z0-9()@:%_\\+.~#?&/=#]*)/),
+    name: Joi.string().required().min(2).max(30),
+    link: Joi.string().required().regex(/https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\\+~#=]+\.[a-zA-Z0-9()]+([-a-zA-Z0-9()@:%_\\+.~#?&/=#]*)/),
   }),
 }), createCard);
 cardsRoute.delete('/:cardId', celebrate({

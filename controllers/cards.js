@@ -1,3 +1,6 @@
+const BadRequestError = require('../errors/bad-request-err');
+const ForbiddenError = require('../errors/forbidden-err');
+const NotFoundError = require('../errors/not-found-err');
 const { Card } = require('../models/card');
 
 exports.getCards = (req, res, next) => Card.find({})
@@ -9,56 +12,68 @@ exports.createCard = (req, res, next) => {
   const owner = req.user._id;
   Card.create({ name, link, owner })
     .then((card) => res.send({ data: card }))
-    .catch((err) => res.status(400).send({ message: err.message }))
-    .catch(next);
-};
-
-exports.deleteCard = (req, res, next) => {
-  Card.findByIdAndRemove(req.params.cardId)
-    .orFail(new Error('Not Found'))
-    .then((deleteCard) => res.send({ deleteCard }))
     .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(400).send({ message: 'Переданые данные некорректны' });
-      } else if (err.message === 'NotFound') {
-        res.status(404).send({ message: 'Не найдено' });
-      } else {
-        res.status(500).send({ message: `Ошибка на сервере: ${err}` });
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        throw new BadRequestError('Данные не прошли валидацию');
       }
     })
     .catch(next);
 };
 
-exports.likeCard = (req, res) => {
+exports.deleteCard = (req, res, next) => {
   const owner = req.user._id;
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $addToSet: { likes: owner } },
-    { new: true },
-  )
-    .then((card) => res.status(200).send(card))
+  Card
+    .findOne({ _id: req.params.cardId })
+    .orFail(() => new NotFoundError('Карточка с таким id не найдена'))
+    .then((card) => {
+      if (!card.owner.equals(owner)) {
+        next(new ForbiddenError('Нельзя удалить чужую карточку'));
+      } else {
+        Card.deleteOne(card)
+          .then(() => res.status(200).send({ message: 'Карточка удалена' }));
+      }
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные для постановки/снятии лайка.',
-        });
+        next(new BadRequestError('Данные не прошли валидацию'));
       }
-    });
+      throw err;
+    })
+    .catch(next);
 };
 
-exports.dislikeCard = (req, res) => {
+exports.likeCard = (req, res, next) => {
   const owner = req.user._id;
-  Card.findByIdAndUpdate(
-    req.params.cardId,
-    { $pull: { likes: owner } },
-    { new: true },
-  )
-    .then((card) => res.status(200).send(card))
+  Card.findByIdAndUpdate(req.params.cardId, { $addToSet: { likes: owner } }, { new: true })
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка с таким id не найдена');
+      }
+      return res.status(200).send(card);
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные для постановки/снятии лайка.',
-        });
+        throw new BadRequestError('Данные не прошли валидацию');
       }
-    });
+      throw err;
+    })
+    .catch(next);
+};
+
+exports.dislikeCard = (req, res, next) => {
+  const owner = req.user._id;
+  Card.findByIdAndUpdate(req.params.cardId, { $pull: { likes: owner } }, { new: true })
+    .then((card) => {
+      if (!card) {
+        throw new NotFoundError('Карточка с таким id не найдена');
+      }
+      return res.status(200).send(card);
+    })
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        throw new BadRequestError('Данные не прошли валидацию');
+      }
+      throw err;
+    })
+    .catch(next);
 };

@@ -3,7 +3,6 @@ const { celebrate, Joi } = require('celebrate');
 
 const {
   getUsers,
-  createUser,
   getUserById,
   updateAvatar,
   updateProfile,
@@ -22,7 +21,6 @@ usersRoute.get(
   }),
   getUserById,
 );
-usersRoute.post('/', createUser);
 usersRoute.patch(
   '/me',
   celebrate({
