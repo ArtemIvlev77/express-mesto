@@ -33,12 +33,12 @@ exports.getUsers = (req, res, next) => {
 };
 
 exports.getMe = (req, res, next) => {
-  const { authorisation } = req.headers;
-  if (!authorisation || authorisation.startsWith('Bearer ')) {
+  const { authorization } = req.headers;
+  if (!authorization || authorization.startsWith('Bearer ')) {
     return res.status(401).send({ message: 'нет доступа' });
   }
 
-  const token = authorisation.replace('Bearer ', '');
+  const token = authorization.replace('Bearer ', '');
   const isAuthorised = () => {
     try {
       return jwt.verify(token, 'super_secret_key');
