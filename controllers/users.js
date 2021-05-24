@@ -5,7 +5,7 @@ const NotFoundError = require('../errors/not-found-err');
 const BadRequestError = require('../errors/bad-request-err');
 const ForbiddenError = require('../errors/forbidden-err');
 const ConflictError = require('../errors/conflict-err');
-const UnauthorisedError = require('../errors/unauthorised-err');
+const UnauthorizedError = require('../errors/unauthorized-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
@@ -21,7 +21,7 @@ exports.login = (req, res, next) => {
       return res.send({ jwt: token });
     })
     .catch(() => {
-      throw new UnauthorisedError('Не удалось авторизироваться');
+      throw new UnauthorizedError('Не удалось авторизироваться');
     })
     .catch(next);
 };
