@@ -44,7 +44,6 @@ usersRoute.patch(
   }),
   updateAvatar,
 );
-usersRoute.get('/me', getMe);
 
 module.exports = {
   usersRoute,
