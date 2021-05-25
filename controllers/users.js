@@ -90,7 +90,7 @@ exports.createUser = (req, res, next) => {
       email,
       password: hash,
     }))
-    .then((user) => res.status(200).send({ mail: user.email }))
+    .then((user) => res.status(200).send({ _id: user._id }))
     .catch((err) => {
       if (err.name === 'ValidationError' || err.name === 'CastError') {
         throw new BadRequestError('Данные не прошли валидацию');
