@@ -41,7 +41,7 @@ exports.getMe = (req, res, next) => {
   const token = authorization.replace('Bearer ', '');
   const isAuthorised = () => {
     try {
-      return jwt.verify(token, 'super_secret_key');
+      return jwt.verify(token, JWT_SECRET);
     } catch (err) {
       return false;
     }
