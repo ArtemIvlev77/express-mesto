@@ -4,6 +4,7 @@ const NotFoundError = require('../errors/not-found-err');
 const { Card } = require('../models/card');
 
 exports.getCards = (req, res, next) => Card.find({})
+  .sort({ createdAt: -1 })
   .then((cards) => res.status(200).send(cards))
   .catch(next);
 
