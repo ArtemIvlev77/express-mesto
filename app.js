@@ -21,17 +21,21 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use(cors([]));
+const allowedCors = [
+  'https://api.mestoivlev.students.nomoredomains.icu',
+  'http://api.mestoivlev.students.nomoredomains.icu',
+  'http://mestoivlev.students.nomoredomains.icu',
+  'https://mestoivlev.students.nomoredomains.icu',
+  'localhost:3000',
+];
 
-app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Headers', '*');
-  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
-  if (req.method === 'OPTIONS') {
-    res.send(200);
-  }
-  next();
-});
+app.use(
+  cors({
+    origin: allowedCors,
+    methods: 'GET,PUT,PATCH,POST,DELETE',
+    allowedHeaders: 'Origin,Content-Type,Accept',
+  }),
+);
 
 app.use(express.json());
 app.use(requestLogger);
