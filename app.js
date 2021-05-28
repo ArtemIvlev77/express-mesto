@@ -14,6 +14,8 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 
+app.use(cors());
+
 mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
   useCreateIndex: true,
@@ -21,21 +23,13 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useUnifiedTopology: true,
 });
 
-app.use(cors());
-
-const allowedCors = [
-  'https://api.mestoivlev.students.nomoredomains.icu',
-  'http://api.mestoivlev.students.nomoredomains.icu',
-  'http://mestoivlev.students.nomoredomains.icu',
-  'https://mestoivlev.students.nomoredomains.icu',
-  'localhost:3000',
-];
-
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', allowedCors);
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE');
-
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Headers', '*');
+  res.header('Access-Control-Allow-Methods', 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS');
+  if (req.method === 'OPTIONS') {
+    res.send(200);
+  }
   next();
 });
 
