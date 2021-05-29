@@ -11,7 +11,7 @@ const {
 
 const cardsRoute = express.Router();
 
-cardsRoute.get('/cards', getCards);
+cardsRoute.get('/', getCards);
 cardsRoute.post('/', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),

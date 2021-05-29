@@ -3,10 +3,10 @@ const UnauthorizedError = require('../errors/unauthorized-err');
 
 const { NODE_ENV, JWT_SECRET } = process.env;
 
-exports.auth = (req, res, next) => {
+module.exports = (req, res, next) => {
   const { authorization } = req.headers;
   if (!authorization || !authorization.startsWith('Bearer ')) {
-    throw new UnauthorizedError('Доступ запрещен');
+    throw new UnauthorizedError('Не удалось авторизироваться');
   }
 
   const token = authorization.replace('Bearer ', '');
@@ -18,7 +18,7 @@ exports.auth = (req, res, next) => {
       NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret',
     );
   } catch (err) {
-    throw new UnauthorizedError('Не удалось авторизироваться');
+    throw new UnauthorizedError('Доступ запрещен');
   }
 
   req.user = payload;
